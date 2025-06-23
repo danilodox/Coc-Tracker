@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.battlestats.wartracker.data.network.interceptor.TokenProvider
 import org.koin.androidx.compose.koinViewModel
 import com.battlestats.wartracker.ui.navigation.AppNavigation
+import com.battlestats.wartracker.ui.player_login.PlayerLoginViewModel
 import com.battlestats.wartracker.ui.player_profile.PlayerProfileViewModel
 
 class MainActivity : ComponentActivity() {
@@ -20,11 +21,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val playerViewModel = koinViewModel<PlayerProfileViewModel>()
+            val playerLoginViewModel = koinViewModel<PlayerLoginViewModel>()
+
 
 
             MaterialTheme {
                 AppNavigation(navController = navController,
-                    playerProfileViewModel = playerViewModel
+                    playerProfileViewModel = playerViewModel,
+                    playerLoginViewModel = playerLoginViewModel
                 )
             }
         }
