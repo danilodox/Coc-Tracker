@@ -1,5 +1,6 @@
 package com.battlestats.wartracker.ui.player_profile
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -25,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -34,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,164 +50,202 @@ import com.battlestats.wartracker.data.model.Player
 import com.battlestats.wartracker.ui.component.ClashProgressBar
 import androidx.compose.material3.TabRow as PlayerClaTab
 
-@Composable //2PLVVQYRP
+@Composable //#2PLVVQYRP
 fun PlayerProfile(navController: NavController, playerTag: String, viewModel: PlayerProfileViewModel) {
 
     val uiState by viewModel.uiState.collectAsState()
-    //val playerState by viewModel.playersState.collectAsState()
-    //val isLoading by viewModel.loadingState.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }
-    //val heroProgress = playerState!!.heroes //aquii
 
-    Box (
-        modifier = Modifier
-            .background(Color(0xFF1E1E1E))
-            .padding(top = 16.dp)
-    ){
+    LaunchedEffect(playerTag) {
+        if (playerTag.isNotBlank()) {
+            viewModel.getPlayerData(playerTag)
+        } else {
+            Log.e("PlayerProfile", "Tag do jogador está vazia!")
+        }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            // Tabs
-            PlayerClaTab(selectedTabIndex = selectedTab, containerColor = colorResource(R.color.background_coc)) {
-                Tab(
-                    selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 },
-                    text = { Text("Jogador", color = if (selectedTab == 0) Color.Yellow else Color.White) }
-                )
-                Tab(
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 },
-                    text = { Text("Clã", color = if (selectedTab == 1) Color.Yellow else Color.White) }
-                )
+    }
+
+    when {
+        uiState.isLoading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Card(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .clickable {},
-                elevation = CardDefaults.cardElevation(6.dp)
-            ){
-                Row(
+        }
+        uiState.isError -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Erro ao carregar jogador.", color = Color.Red)
+            }
+        }
+        uiState.player != null -> {
+            uiState.player?.let { player ->
+                Box (
                     modifier = Modifier
-                        .fillMaxWidth().background(colorResource(R.color.background_card))
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    PlayerLevelShield(uiState.player!!.expLevel) // ajustar aquiii pois !! pode esconder erros
+                        .background(Color(0xFF1E1E1E))
+                        .padding(top = 16.dp)
+                ){
+                    Column {
+                        PlayerToolbar(
+                            playerName = player.name ?: "Sem nome",
+                            playerTag = player.tag ?: "",
+                            playerLevel =player.expLevel ?: 0,
+                            onBackClick = { navController.popBackStack() }
+                        )
 
-                    Column(modifier = Modifier.padding(8.dp)) {
-
-                        Text(text = uiState.player!!.name!!, fontSize = 16.sp, color = Color.White)
-                        Text(text = uiState.player!!.tag!!, fontSize = 14.sp, color = Color.White)
-
+                        PlayerProfileContent(selectedTab, onTabSelected = {
+                            selectedTab = it
+                        }, player = player)
                     }
 
                 }
-
             }
+        }
+    }
+}
 
+@Composable
+private fun PlayerProfileContent(
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit,
+    player: Player
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        // Tabs
+        PlayerClaTab(
+            selectedTabIndex = selectedTab,
+            containerColor = colorResource(R.color.background_coc)
+        ) {
+            Tab(
+                selected = selectedTab == 0,
+                onClick = { onTabSelected(0) },
+                text = {
+                    Text(
+                        "Jogador",
+                        color = if (selectedTab == 0) Color.Yellow else Color.White
+                    )
+                }
+            )
+            Tab(
+                selected = selectedTab == 1,
+                onClick = { onTabSelected(1) },
+                text = { Text("Clã", color = if (selectedTab == 1) Color.Yellow else Color.White) }
+            )
+        }
 
-            // Conteúdo da aba
-            when (selectedTab) {
-                0 -> PlayerInfoSection(uiState.player!!)
-                1 -> ClanInfoSection(uiState.player?.clan)
-            }
-            HorizontalDivider(
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Card(
+            modifier = Modifier
+                .padding(8.dp)
+                .clickable {},
+            elevation = CardDefaults.cardElevation(6.dp)
+        ) {
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp), // Margem lateral
-                thickness = 2.dp,
-                color = Color(0xFFD4AF37) // Cor dourada estilo Clash
-            )
+                    .background(colorResource(R.color.background_card))
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
 
+                PlayerLevelShield(player.expLevel) // ajustar aquiii pois !! pode esconder erros
 
-            Card(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .background(colorResource(R.color.background_coc))
-                    .clickable {},
-                elevation = CardDefaults.cardElevation(6.dp)
-            ){
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth().background(colorResource(R.color.background_card)),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ){
-                    Text("Progresso",
-                        color = Color.Yellow,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                            .background(colorResource(R.color.background_card))
-                    )
+                Column(modifier = Modifier.padding(8.dp)) {
 
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth().background(colorResource(R.color.background_card))
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
-
-                    townHallLevel(uiState.player!!.townHallLevel)  // ajustar icone para centro de vila
-
-                    Column(modifier = Modifier.padding(8.dp)) {
-
-                        Text(text = "Centro da vila", fontSize = 16.sp, color = Color.White)
-
-
-                        // barra
-
-                        ClashProgressBar(progress = 0.65f)
-
-                        //Nesse card, podeira quando clicar, ir para outra tela
-                        // e nela dividir em outros cards :
-                            // herois
-                            // construcoes
-                            // defesas
-                            // tropas
-                            // muros
-
-                    }
+                    Text(text = player.name!!, fontSize = 16.sp, color = Color.White)
+                    Text(text = player.tag!!, fontSize = 14.sp, color = Color.White)
 
                 }
 
             }
-
-
-
-
-
-
-
-
 
         }
 
 
+        // Conteúdo da aba
+        when (selectedTab) {
+            0 -> PlayerInfoSection(player)
+            1 -> ClanInfoSection(player.clan)
+        }
+        HorizontalDivider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp), // Margem lateral
+            thickness = 2.dp,
+            color = Color(0xFFD4AF37) // Cor dourada estilo Clash
+        )
 
+
+        Card(
+            modifier = Modifier
+                .padding(8.dp)
+                .background(colorResource(R.color.background_coc))
+                .clickable {},
+            elevation = CardDefaults.cardElevation(6.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(colorResource(R.color.background_card)),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text(
+                    "Progresso",
+                    color = Color.Yellow,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .background(colorResource(R.color.background_card))
+                )
+
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(colorResource(R.color.background_card))
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+
+                townHallLevel(player.townHallLevel)  // ajustar icone para centro de vila
+
+                Column(modifier = Modifier.padding(8.dp)) {
+
+                    Text(text = "Centro da vila", fontSize = 16.sp, color = Color.White)
+
+
+                    // barra
+
+                    ClashProgressBar(progress = 0.65f)
+
+                    //Nesse card, podeira quando clicar, ir para outra tela
+                    // e nela dividir em outros cards :
+                    // herois
+                    // construcoes
+                    // defesas
+                    // tropas
+                    // muros
+
+                }
+
+            }
+
+        }
 
 
     }
-
-
-
-
-
-
 }
+
 @Composable
 fun PlayerInfoSection(player: Player?) {
 

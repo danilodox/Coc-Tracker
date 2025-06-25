@@ -1,5 +1,6 @@
 package com.battlestats.wartracker.ui.player_login
 
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -27,7 +28,6 @@ import com.battlestats.wartracker.ui.player_profile.PlayerProfileViewModel
 fun WelcomeLoginScreen(
     navController: NavController, viewModel: PlayerLoginViewModel
 ) {
-    var playerName by remember { mutableStateOf(TextFieldValue("")) }
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val isLoading = uiState.isLoading
@@ -40,7 +40,8 @@ fun WelcomeLoginScreen(
                     Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
                 }
                 is PlayerLoginUiEvent.NavigateToHome  -> {
-                    navController.navigate("player_profile/${event.tag}")
+                    Log.d("aquii", "player_profile/${event.tag}")
+                    navController.navigate("player_profile/${Uri.encode(event.tag)}")
                 }
             }
         }
