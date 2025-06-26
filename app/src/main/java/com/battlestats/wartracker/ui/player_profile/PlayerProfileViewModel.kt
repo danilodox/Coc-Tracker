@@ -3,6 +3,7 @@ package com.battlestats.wartracker.ui.player_profile
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.battlestats.wartracker.data.local.repository.LocalPlayerRepository
 import com.battlestats.wartracker.data.model.Player
 import com.battlestats.wartracker.data.repository.PlayerRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,7 +16,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class PlayerProfileViewModel(
-    private val repository: PlayerRepository
+    private val repository: PlayerRepository,
+    private val localRepository: LocalPlayerRepository
 ) :ViewModel() {
 
     private val _uiState = MutableStateFlow(PlayerProfileUiState())
@@ -24,6 +26,39 @@ class PlayerProfileViewModel(
     private val _uiEvent = MutableSharedFlow<PlayerProfileUiEvent>()
     val uiEvent: SharedFlow<PlayerProfileUiEvent> = _uiEvent.asSharedFlow()
 
+    fun onEvent(event: PlayerProfileUiEvent) {
+        when(event) {
+            /*is PlayerProfileUiEvent.OnBackClick -> {
+                viewModelScope.launch {
+                    _uiEvent.emit(PlayerProfileUiEvent.NavigateToNextScreen)
+                }
+            }*/
+            is PlayerProfileUiEvent.OnFavoriteClick -> {
+
+                _uiState.update { it.copy(isFavorite = !_uiState.value.isFavorite) }
+
+                viewModelScope.launch {
+                    try {
+                        event.player.let {
+                            localRepository.insert(it)
+                            _uiEvent.emit(PlayerProfileUiEvent.ShowToast("Jogador salvo como favorito"))
+                        }
+
+                    } catch (e: Exception) {
+                        _uiEvent.emit(PlayerProfileUiEvent.ShowToast("Erro ao salvar favorito."))
+                    }
+                }
+
+
+            }
+            is PlayerProfileUiEvent.ShowToast -> {
+
+            }
+            is PlayerProfileUiEvent.NavigateToNextScreen -> {
+
+            }
+        }
+    }
 
     fun getPlayerData(playerTag: String) {
         viewModelScope.launch {

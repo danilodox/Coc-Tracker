@@ -6,6 +6,6 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val uiModule = module {
-    viewModel { PlayerProfileViewModel(get()) }
+    viewModel { PlayerProfileViewModel(get(), get()) }
     viewModel { PlayerLoginViewModel(get(), get()) }
 }
