@@ -4,6 +4,7 @@ import com.battlestats.wartracker.data.local.dao.PlayerDao
 import com.battlestats.wartracker.data.local.model.PlayerEntity
 import com.battlestats.wartracker.data.local.model.toEntity
 import com.battlestats.wartracker.data.model.Player
+import kotlinx.coroutines.flow.Flow
 
 class LocalPlayerRepository(private val dao: PlayerDao) {
 
@@ -21,5 +22,9 @@ class LocalPlayerRepository(private val dao: PlayerDao) {
 
     suspend fun getByTag(tag: String): PlayerEntity? {
         return dao.getPlayerByTag(tag)
+    }
+
+    suspend fun getAllPlayers(): Flow<List<PlayerEntity>> {
+        return dao.getAllPlayers()
     }
 }

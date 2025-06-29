@@ -26,6 +26,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -51,6 +52,7 @@ import androidx.navigation.NavController
 import com.battlestats.wartracker.R
 import com.battlestats.wartracker.data.model.Clan
 import com.battlestats.wartracker.data.model.Player
+import com.battlestats.wartracker.ui.component.BottomBarNavigation
 import com.battlestats.wartracker.ui.component.ClashProgressBar
 import androidx.compose.material3.TabRow as PlayerClaTab
 
@@ -66,7 +68,6 @@ fun PlayerProfile(navController: NavController, playerTag: String, viewModel: Pl
         } else {
             Log.e("PlayerProfile", "Tag do jogador está vazia!")
         }
-
     }
 
     when {
@@ -82,31 +83,42 @@ fun PlayerProfile(navController: NavController, playerTag: String, viewModel: Pl
         }
         uiState.player != null -> {
             uiState.player?.let { player ->
-                Box (
-                    modifier = Modifier
-                        .background(Color(0xFF1E1E1E))
-                        .padding(top = 16.dp)
-                ){
-                    Column {
-                        PlayerToolbar(
-                            playerName = player.name ?: "Sem nome",
-                            playerTag = player.tag ?: "",
-                            //playerLevel =player.expLevel ?: 0,
-                            isFavorite = uiState.isFavorite,
-                            onBackClick = { navController.popBackStack() },
-                            onFavoriteClick = { viewModel.onEvent(PlayerProfileUiEvent.OnFavoriteClick(player)) }
-                        )
 
-                        PlayerProfileContent(selectedTab, onTabSelected = {
-                            selectedTab = it
-                        }, player = player)
+                Scaffold(
+                    bottomBar = {
+                        BottomBarNavigation(navController = navController)
+                    },
+                    containerColor = Color(0xFF1E1E1E) // mesma cor de fundo da tela
+                ) { innerPadding ->
+                    Box (
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .background(Color(0xFF1E1E1E))
+                            .padding(top = 16.dp)
+                    ){
+                        Column {
+                            PlayerToolbar(
+                                playerName = player.name ?: "Sem nome",
+                                playerTag = player.tag ?: "",
+                                //playerLevel =player.expLevel ?: 0,
+                                isFavorite = uiState.isFavorite,
+                                onBackClick = { navController.popBackStack() },
+                                onFavoriteClick = { viewModel.onEvent(PlayerProfileUiEvent.OnFavoriteClick(player)) }
+                            )
+
+                            PlayerProfileContent(selectedTab, onTabSelected = {
+                                selectedTab = it
+                            }, player = player)
+                        }
+
                     }
-
                 }
             }
         }
     }
 }
+
+
 
 @Composable
 private fun PlayerProfileContent(
@@ -246,6 +258,9 @@ private fun PlayerProfileContent(
 
             }
 
+
+
+
         }
 
 
@@ -373,20 +388,6 @@ fun PlayerToolbar(
                     tint = Color.Red
                 )
             }
-
-            /*Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(Color.Blue, shape = CircleShape) // Fundo azul para simular o ícone do XP no Clash
-            ) {
-                Text(
-                    text = "aqui", //esse box vai ser o botão de marcar como favorito
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            }*/
         }
     )
 }

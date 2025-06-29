@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.battlestats.wartracker.data.local.model.PlayerEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PlayerDao {
@@ -18,6 +19,9 @@ interface PlayerDao {
 
     @Query("SELECT * FROM players WHERE tag = :tag")
     suspend fun getPlayerByTag(tag: String): PlayerEntity?
+
+    @Query("SELECT * FROM players")
+    fun getAllPlayers(): Flow<List<PlayerEntity>>
 
     @Delete
     suspend fun deletePlayer(player: PlayerEntity)
