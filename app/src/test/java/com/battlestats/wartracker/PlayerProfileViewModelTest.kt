@@ -1,6 +1,7 @@
 package com.battlestats.wartracker
 
 import app.cash.turbine.test
+import com.battlestats.wartracker.data.local.model.toEntity
 import com.battlestats.wartracker.data.local.repository.LocalPlayerRepository
 import com.battlestats.wartracker.data.model.Achievement
 import com.battlestats.wartracker.data.model.BuilderBaseLeague
@@ -95,6 +96,8 @@ class PlayerProfileViewModelTest {
         )
 
         coEvery { repository.getPlayerDetails(tag) } returns fakePlayer
+        coEvery { localRepository.getByTag(tag) } returns fakePlayer.toEntity()
+        //coEvery { localRepository.getByTag(tag) } returns null
 
         // Assert: verifica eventos emitidos
         val uiEventJob = launch {
@@ -115,15 +118,15 @@ class PlayerProfileViewModelTest {
         viewModel.getPlayerData(tag)
         advanceUntilIdle()
 
-
-        // Assert: verifica o uiState
         viewModel.uiState.test {
-
+            
             val loadedState = awaitItem()
             assertEquals(false, loadedState.isLoading)
             assertEquals(fakePlayer, loadedState.player)
             cancelAndIgnoreRemainingEvents()
         }
+
+
         uiEventJob.join()
 
     }
