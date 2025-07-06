@@ -31,6 +31,9 @@ jobs:
         restore-keys: |
           gradle-${{ runner.os }}
 
+    - name: 🧼 Permissão de execução para o gradlew
+      run: chmod +x ./gradlew
+
     - name: 🧪 Rodar testes unitários
       run: ./gradlew testDebugUnitTest
 
