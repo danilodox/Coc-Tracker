@@ -1,10 +1,9 @@
 package com.br.moviefy.data.network
 
 
-import com.battlestats.wartracker.data.model.Clan
-import com.battlestats.wartracker.data.model.Player
+import com.battlestats.wartracker.data.remote.model.Clan
+import com.battlestats.wartracker.data.remote.model.PlayerDto
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.Path
 
 interface ApiService {
@@ -16,5 +15,5 @@ interface ApiService {
     suspend fun getPlayerDetails(
         @Path("playerTag") playerTag: String,
         //@Header("Authorization") token: String
-    ): Player
+    ): PlayerDto
 }

@@ -1,12 +1,9 @@
 package com.battlestats.wartracker.ui.player_profile
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.battlestats.wartracker.data.local.model.toEntity
-import com.battlestats.wartracker.data.local.repository.LocalPlayerRepository
-import com.battlestats.wartracker.data.model.Player
-import com.battlestats.wartracker.data.repository.PlayerRepository
+import com.battlestats.wartracker.domain.repository.PlayerRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -18,7 +15,6 @@ import kotlinx.coroutines.launch
 
 class PlayerProfileViewModel(
     private val repository: PlayerRepository,
-    private val localRepository: LocalPlayerRepository
 ) :ViewModel() {
 
     private val _uiState = MutableStateFlow(PlayerProfileUiState())
@@ -33,15 +29,15 @@ class PlayerProfileViewModel(
 
                 viewModelScope.launch {
                     try {
-                        val playerEntity = event.player.toEntity()
-                        val isAlreadyFavorite = localRepository.getByTag(playerEntity.tag) != null
+                        val playerEntity = event.playerDto.toEntity()
+                        val isAlreadyFavorite = repository.getByTag(playerEntity.tag) != null
 
                         if (isAlreadyFavorite) {
-                            localRepository.delete(playerEntity)
+                            repository.delete(playerEntity)
                             _uiState.update { it.copy(isFavorite = false) }
                             _uiEvent.emit(PlayerProfileUiEvent.ShowToast("Jogador removido dos favoritos"))
                         } else {
-                            localRepository.insert(event.player)
+                            repository.insert(event.playerDto)
                             _uiState.update { it.copy(isFavorite = true) }
                             _uiEvent.emit(PlayerProfileUiEvent.ShowToast("Jogador salvo como favorito"))
                         }
@@ -69,10 +65,10 @@ class PlayerProfileViewModel(
                 val player = repository.getPlayerDetails(playerTag)
 
                 if (player != null) {
-                    val isFavorite = localRepository.getByTag(player.tag ?: "") != null
+                    val isFavorite = repository.getByTag(player.tag ?: "") != null
 
                     _uiState.update { it.copy(
-                        player = player,
+                        playerDto = player,
                         isLoading = false,
                         isFavorite = isFavorite
                     ) }

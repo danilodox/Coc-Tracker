@@ -1,10 +1,10 @@
 package com.battlestats.wartracker.ui.player_profile
 
-import com.battlestats.wartracker.data.model.Player
+import com.battlestats.wartracker.data.remote.model.PlayerDto
 
 data class PlayerProfileUiState (
     val isLoading: Boolean = false,
-    val player: Player? = null,
+    val playerDto: PlayerDto? = null,
     val isError: Boolean = false,
     val isFavorite: Boolean = false
     )

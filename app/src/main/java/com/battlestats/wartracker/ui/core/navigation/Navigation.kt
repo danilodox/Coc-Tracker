@@ -1,4 +1,4 @@
-package com.battlestats.wartracker.ui.navigation
+package com.battlestats.wartracker.ui.core.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController

@@ -1,10 +1,10 @@
 package com.battlestats.wartracker.ui.player_profile
 
-import com.battlestats.wartracker.data.model.Player
+import com.battlestats.wartracker.data.remote.model.PlayerDto
 
 sealed class PlayerProfileUiEvent {
     data class ShowToast(val message: String) : PlayerProfileUiEvent()
     data object NavigateToNextScreen : PlayerProfileUiEvent()
-    data class OnFavoriteClick(val player: Player) : PlayerProfileUiEvent()
+    data class OnFavoriteClick(val playerDto: PlayerDto) : PlayerProfileUiEvent()
     // Adicione outros eventos conforme necessário
 }

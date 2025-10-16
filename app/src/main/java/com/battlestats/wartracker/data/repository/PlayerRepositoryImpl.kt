@@ -1,18 +1,23 @@
 package com.battlestats.wartracker.data.repository
 
 import android.util.Log
-import com.battlestats.wartracker.data.model.Player
-import com.battlestats.wartracker.data.network.interceptor.TokenProvider
+import com.battlestats.wartracker.data.local.dao.PlayerDao
+import com.battlestats.wartracker.data.local.model.PlayerEntity
+import com.battlestats.wartracker.data.local.model.toEntity
+import com.battlestats.wartracker.data.remote.model.PlayerDto
+import com.battlestats.wartracker.domain.repository.PlayerRepository
 import com.br.moviefy.data.network.RetrofitService
+import kotlinx.coroutines.flow.Flow
 import java.io.IOException
 
-class PlayerRepositoryImpl(private val apiService: RetrofitService): PlayerRepository {
+class PlayerRepositoryImpl(private val apiService: RetrofitService,
+                           private val playerDao: PlayerDao
+    ): PlayerRepository {
 
-    //private val apiToken = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6Ijk3YTRiODMwLWY2ZjAtNDIwMy1hZTc5LWY2MGU3OTU3MDlkZCIsImlhdCI6MTc1MDQ1MzMyNiwic3ViIjoiZGV2ZWxvcGVyLzQxMTY1OGZmLWVjOGYtNzFkMS0wNzBkLTI3OTg3OWE2NGVlOCIsInNjb3BlcyI6WyJjbGFzaCJdLCJsaW1pdHMiOlt7InRpZXIiOiJkZXZlbG9wZXIvc2lsdmVyIiwidHlwZSI6InRocm90dGxpbmcifSx7ImNpZHJzIjpbIjE4Ny4xOS4xMzEuMjMiXSwidHlwZSI6ImNsaWVudCJ9XX0.8KCZVn4py3E4uBpIHGIXqct-LXbZvQ8m8QLeOupHtACDAnz5Z3iEVWxYuZJ6n6ZbqjsI0VqFKijmL1Ip7048Fw"
 
-    override suspend fun getPlayerDetails(playerTag: String): Player? {
+    override suspend fun getPlayerDetails(playerTag: String): PlayerDto? {
         return try {
-            val response = apiService.service.getPlayerDetails(playerTag/*, apiToken*/)
+            val response = apiService.service.getPlayerDetails(playerTag)
             Log.d("PlayerRepositoryImpl", "Jogador encontrado: $response")
             response
         }catch (e : Exception) {
@@ -28,6 +33,25 @@ class PlayerRepositoryImpl(private val apiService: RetrofitService): PlayerRepos
         }
     }
 
+    override suspend fun insert(playerDto: PlayerDto) {
+        playerDao.insertPlayer(playerDto.toEntity())
+    }
+
+    override suspend fun delete(player: PlayerEntity) {
+        playerDao.deletePlayer(player)
+    }
+
+    override suspend fun searchByName(name: String): List<PlayerEntity> {
+        return playerDao.searchPlayersByName(name)
+    }
+
+    override suspend fun getByTag(tag: String): PlayerEntity? {
+        return playerDao.getPlayerByTag(tag)
+    }
+
+    override suspend fun getAllPlayers(): Flow<List<PlayerEntity>> {
+        return playerDao.getAllPlayers()
+    }
 
 
 }

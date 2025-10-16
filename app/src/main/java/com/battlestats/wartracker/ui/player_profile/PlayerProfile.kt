@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -50,10 +49,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.battlestats.wartracker.R
-import com.battlestats.wartracker.data.model.Clan
-import com.battlestats.wartracker.data.model.Player
-import com.battlestats.wartracker.ui.component.BottomBarNavigation
-import com.battlestats.wartracker.ui.component.ClashProgressBar
+import com.battlestats.wartracker.data.remote.model.Clan
+import com.battlestats.wartracker.data.remote.model.PlayerDto
+import com.battlestats.wartracker.ui.core.component.BottomBarNavigation
+import com.battlestats.wartracker.ui.core.component.ClashProgressBar
 import androidx.compose.material3.TabRow as PlayerClaTab
 
 @Composable //#2PLVVQYRP
@@ -81,8 +80,8 @@ fun PlayerProfile(navController: NavController, playerTag: String, viewModel: Pl
                 Text("Erro ao carregar jogador.", color = Color.Red)
             }
         }
-        uiState.player != null -> {
-            uiState.player?.let { player ->
+        uiState.playerDto != null -> {
+            uiState.playerDto?.let { player ->
 
                 Scaffold(
                     bottomBar = {
@@ -108,7 +107,7 @@ fun PlayerProfile(navController: NavController, playerTag: String, viewModel: Pl
 
                             PlayerProfileContent(selectedTab, onTabSelected = {
                                 selectedTab = it
-                            }, player = player)
+                            }, playerDto = player)
                         }
 
                     }
@@ -124,7 +123,7 @@ fun PlayerProfile(navController: NavController, playerTag: String, viewModel: Pl
 private fun PlayerProfileContent(
     selectedTab: Int,
     onTabSelected: (Int) -> Unit,
-    player: Player
+    playerDto: PlayerDto
 ) {
     Column(
         modifier = Modifier
@@ -169,12 +168,12 @@ private fun PlayerProfileContent(
                 horizontalArrangement = Arrangement.Start
             ) {
 
-                PlayerLevelShield(player.expLevel)
+                PlayerLevelShield(playerDto.expLevel)
 
                 Column(modifier = Modifier.padding(8.dp)) {
 
-                    Text(text = player.name!!, fontSize = 16.sp, color = Color.White)
-                    Text(text = player.tag!!, fontSize = 14.sp, color = Color.White)
+                    Text(text = playerDto.name!!, fontSize = 16.sp, color = Color.White)
+                    Text(text = playerDto.tag!!, fontSize = 14.sp, color = Color.White)
 
                 }
 
@@ -185,8 +184,8 @@ private fun PlayerProfileContent(
 
         // Conteúdo da aba
         when (selectedTab) {
-            0 -> PlayerInfoSection(player)
-            1 -> ClanInfoSection(player.clan)
+            0 -> PlayerInfoSection(playerDto)
+            1 -> ClanInfoSection(playerDto.clan)
         }
         HorizontalDivider(
             modifier = Modifier
@@ -235,7 +234,7 @@ private fun PlayerProfileContent(
                 horizontalArrangement = Arrangement.Start
             ) {
 
-                townHallLevel(player.townHallLevel)  // ajustar icone para centro de vila
+                townHallLevel(playerDto.townHallLevel)  // ajustar icone para centro de vila
 
                 Column(modifier = Modifier.padding(8.dp)) {
 
@@ -268,7 +267,7 @@ private fun PlayerProfileContent(
 }
 
 @Composable
-fun PlayerInfoSection(player: Player?) {
+fun PlayerInfoSection(playerDto: PlayerDto?) {
 
     Column(modifier = Modifier.padding(8.dp)) {
       /*  player?.let {

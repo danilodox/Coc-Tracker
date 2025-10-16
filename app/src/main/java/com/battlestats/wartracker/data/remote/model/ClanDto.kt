@@ -1,4 +1,4 @@
-data class Clan(
+data class ClanDto(
     val tag: String,
     val name: String,
     val description: String,

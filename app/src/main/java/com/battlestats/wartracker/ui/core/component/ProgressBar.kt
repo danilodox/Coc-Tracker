@@ -1,4 +1,4 @@
-package com.battlestats.wartracker.ui.component
+package com.battlestats.wartracker.ui.core.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background

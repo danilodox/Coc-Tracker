@@ -1,6 +1,6 @@
-package com.battlestats.wartracker.data.model
+package com.battlestats.wartracker.data.remote.model
 
-data class Player(
+data class PlayerDto(
     val league: League?,
     val builderBaseLeague: BuilderBaseLeague?,
     val clan: Clan?,

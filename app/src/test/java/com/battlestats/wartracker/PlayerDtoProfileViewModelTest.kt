@@ -2,19 +2,9 @@ package com.battlestats.wartracker
 
 import app.cash.turbine.test
 import com.battlestats.wartracker.data.local.model.toEntity
-import com.battlestats.wartracker.data.local.repository.LocalPlayerRepository
-import com.battlestats.wartracker.data.model.Achievement
-import com.battlestats.wartracker.data.model.BuilderBaseLeague
-import com.battlestats.wartracker.data.model.Clan
-import com.battlestats.wartracker.data.model.Hero
-import com.battlestats.wartracker.data.model.HeroEquipment
-import com.battlestats.wartracker.data.model.Label
-import com.battlestats.wartracker.data.model.LegendStatistics
-import com.battlestats.wartracker.data.model.Player
-import com.battlestats.wartracker.data.model.PlayerHouse
-import com.battlestats.wartracker.data.model.Spell
-import com.battlestats.wartracker.data.model.Troop
-import com.battlestats.wartracker.data.repository.PlayerRepository
+import com.battlestats.wartracker.data.remote.model.Clan
+import com.battlestats.wartracker.data.remote.model.PlayerDto
+import com.battlestats.wartracker.domain.repository.PlayerRepository
 import com.battlestats.wartracker.ui.player_profile.PlayerProfileUiEvent
 import com.battlestats.wartracker.ui.player_profile.PlayerProfileViewModel
 import io.mockk.coEvery
@@ -35,18 +25,16 @@ import org.junit.Before
 import kotlin.test.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class PlayerProfileViewModelTest {
+class PlayerDtoProfileViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var repository: PlayerRepository
-    private lateinit var localRepository: LocalPlayerRepository
     private lateinit var viewModel: PlayerProfileViewModel
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         repository = mockk()
-        localRepository = mockk()
-        viewModel = PlayerProfileViewModel(repository, localRepository)
+        viewModel = PlayerProfileViewModel(repository)
     }
 
     @After
@@ -58,7 +46,7 @@ class PlayerProfileViewModelTest {
     fun `getPlayerData should update uiState and emit events on success`() = runTest {
         // Arrange
         val tag = "#123ABC"
-        val fakePlayer = Player(
+        val fakePlayerDto = PlayerDto(
             tag = tag,
             name = "Danilo",
             expLevel = 100,
@@ -95,8 +83,8 @@ class PlayerProfileViewModelTest {
             playerHouse = null,
         )
 
-        coEvery { repository.getPlayerDetails(tag) } returns fakePlayer
-        coEvery { localRepository.getByTag(tag) } returns fakePlayer.toEntity()
+        coEvery { repository.getPlayerDetails(tag) } returns fakePlayerDto
+        coEvery { repository.getByTag(tag) } returns fakePlayerDto.toEntity()
         //coEvery { localRepository.getByTag(tag) } returns null
 
         // Assert: verifica eventos emitidos
@@ -122,7 +110,7 @@ class PlayerProfileViewModelTest {
             
             val loadedState = awaitItem()
             assertEquals(false, loadedState.isLoading)
-            assertEquals(fakePlayer, loadedState.player)
+            assertEquals(fakePlayerDto, loadedState.playerDto)
             cancelAndIgnoreRemainingEvents()
         }
 

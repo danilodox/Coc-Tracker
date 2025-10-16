@@ -2,8 +2,8 @@ package com.battlestats.wartracker.ui.player_login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.battlestats.wartracker.data.network.interceptor.TokenProvider
-import com.battlestats.wartracker.data.repository.PlayerRepository
+import com.battlestats.wartracker.data.datastore.SecureTokenProvider
+import com.battlestats.wartracker.domain.repository.PlayerRepository
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.update
 
 class PlayerLoginViewModel(
     private val repository: PlayerRepository,
-    private val tokenProvider: TokenProvider // ainda útil se você quiser guardar outras infos
+    private val tokenProvider: SecureTokenProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PlayerLoginUiState())

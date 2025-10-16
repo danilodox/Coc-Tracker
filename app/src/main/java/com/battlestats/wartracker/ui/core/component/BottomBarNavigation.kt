@@ -1,4 +1,4 @@
-package com.battlestats.wartracker.ui.component
+package com.battlestats.wartracker.ui.core.component
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite

@@ -1,7 +1,7 @@
 package com.br.moviefy.data.network
 
 
-import com.battlestats.wartracker.data.network.interceptor.TokenProvider
+import com.battlestats.wartracker.data.datastore.SecureTokenProvider
 import com.br.moviefy.data.network.interceptor.AuthInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -10,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 
-class RetrofitService(private val tokenProvider: TokenProvider) {
+class RetrofitService(private val tokenProvider: SecureTokenProvider) {
 
     companion object {
         private const val BASE_URL = "https://api.clashofclans.com/v1/"
