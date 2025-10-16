@@ -88,8 +88,7 @@ fun WelcomeLoginScreen(
             } else {
                 Button(
                     onClick = {
-                        //val tag = "#${playerName.text.trim()}" // Adiciona "#" ao nickname
-                        //val tag = "#2PLVVQYRP" // futuramente você pode usar: "#${playerName.text.trim()}"
+                        //val tag = "#2PLVVQYRP"
                         viewModel.loginWithTag(playerTag)
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD4AF37)),
