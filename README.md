@@ -69,8 +69,9 @@ Siga os passos abaixo para clonar e executar o projeto localmente.
 
 `Clone o repositório:`
 
-git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/danilodox/Coc-Tracker.git)
-Obtenha uma Chave de API:
+git clone (https://github.com/danilodox/Coc-Tracker.git)
+
+`Obtenha uma Chave de API:`
 
 Você precisará de uma chave de API do Clash of Clans. Crie uma no [Portal de Desenvolvedores da Supercell](https://developer.clashofclans.com/).
 
