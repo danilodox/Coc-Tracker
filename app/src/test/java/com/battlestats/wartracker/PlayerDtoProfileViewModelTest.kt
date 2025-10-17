@@ -1,10 +1,14 @@
 package com.battlestats.wartracker
 
 import app.cash.turbine.test
+import com.battlestats.wartracker.domain.util.Result
 import com.battlestats.wartracker.data.local.model.toEntity
-import com.battlestats.wartracker.data.remote.model.ClanDto
-import com.battlestats.wartracker.data.remote.model.PlayerDto
-import com.battlestats.wartracker.domain.repository.PlayerRepository
+import com.battlestats.wartracker.domain.model.Clan
+import com.battlestats.wartracker.domain.model.Player
+import com.battlestats.wartracker.domain.usecase.CalculateTownHallProgressUseCase
+import com.battlestats.wartracker.domain.usecase.GetPlayerProfileUseCase
+import com.battlestats.wartracker.domain.usecase.PlayerProfileData
+import com.battlestats.wartracker.domain.usecase.ToggleFavoriteStatusUseCase
 import com.battlestats.wartracker.ui.player_profile.PlayerProfileUiEvent
 import com.battlestats.wartracker.ui.player_profile.PlayerProfileViewModel
 import io.mockk.coEvery
@@ -27,14 +31,24 @@ import kotlin.test.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class PlayerDtoProfileViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
-    private lateinit var repository: PlayerRepository
+
+    private lateinit var getPlayerProfileUseCase: GetPlayerProfileUseCase
+    private lateinit var toggleFavoriteStatusUseCase: ToggleFavoriteStatusUseCase
+    private lateinit var calculateTownHallProgressUseCase: CalculateTownHallProgressUseCase
     private lateinit var viewModel: PlayerProfileViewModel
+
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        repository = mockk()
-        viewModel = PlayerProfileViewModel(repository)
+        getPlayerProfileUseCase = mockk()
+        toggleFavoriteStatusUseCase = mockk(relaxed = true) //relaxed to not use this test for now
+        calculateTownHallProgressUseCase = mockk(relaxed = true)
+
+        viewModel = PlayerProfileViewModel(
+            getPlayerProfileUseCase,
+            toggleFavoriteStatusUseCase,
+        )
     }
 
     @After
@@ -46,76 +60,58 @@ class PlayerDtoProfileViewModelTest {
     fun `getPlayerData should update uiState and emit events on success`() = runTest {
         // Arrange
         val tag = "#123ABC"
-        val fakePlayerDto = PlayerDto(
+
+        //create all data domain
+        val fakeClan = Clan(tag = "#CLAN123", name = "Clashers", clanLevel = 10)
+
+        val fakePlayer = Player(
             tag = tag,
             name = "Danilo",
             expLevel = 100,
             townHallLevel = 15,
-            clan = ClanDto(
-                name = "Clashers",
-                tag = "#CLAN123",
-                clanLevel = null,
-                badgeUrls = null,
-            ),
-            league = null,
-            builderBaseLeague = null,
-            role = null,
-            warPreference = null,
-            attackWins = null,
-            defenseWins = null,
-            townHallWeaponLevel = null,
-            legendStatistics = null,
-            troops = null,
-            heroes = null,
-            heroEquipment = null,
-            spells = null,
-            labels = null,
-            trophies = null,
-            bestTrophies = null,
-            donations = null,
-            donationsReceived = null,
-            builderHallLevel = null,
-            builderBaseTrophies = null,
-            bestBuilderBaseTrophies = null,
-            warStars = null,
-            achievements = null,
-            clanCapitalContributions = null,
-            playerHouse = null,
+            clan = fakeClan
         )
 
-        coEvery { repository.getPlayerDetails(tag) } returns fakePlayerDto
-        coEvery { repository.getByTag(tag) } returns fakePlayerDto.toEntity()
-        //coEvery { localRepository.getByTag(tag) } returns null
+        val profileData = PlayerProfileData(player = fakePlayer, isFavorite = true)
 
-        // Assert: verifica eventos emitidos
-        val uiEventJob = launch {
-            viewModel.uiEvent.test {
-                val event1 = awaitItem()
-                val event2 = awaitItem()
+        //configure the mock of the Usecase to return success
+        coEvery { getPlayerProfileUseCase(tag) } returns Result.Success(profileData)
 
-                val events = listOf(event1, event2)
+        viewModel.getPlayerData(tag)
 
-                assertTrue(events.contains(PlayerProfileUiEvent.NavigateToNextScreen))
-                assertTrue(events.contains(PlayerProfileUiEvent.ShowToast("Player loaded successfully")))
+        //clear all coroutines after the test is finished
+        advanceUntilIdle()
 
-                cancelAndIgnoreRemainingEvents()
-            }
-        }
+
+        // Assert
+        //verify all final state of UI with domain model
+        val finalState = viewModel.uiState.value
+
+        assertEquals(false, finalState.isLoading)
+        assertEquals(fakePlayer, finalState.player)
+        assertEquals(true, finalState.isFavorite) // Verifica se o status de favorito foi atualizado
+        assertEquals(false, finalState.isError)
+
+    }
+
+    @Test
+    fun `getPlayerData should update uiState with error on failure`() = runTest {
+        // Arrange
+        val tag = "#ERROR"
+        val errorMessage = "Player not found"
+
+        // Configure the UseCase mock to return an error result
+        coEvery { getPlayerProfileUseCase(tag) } returns Result.Error(errorMessage)
 
         // Act
         viewModel.getPlayerData(tag)
         advanceUntilIdle()
 
-        viewModel.uiState.test {
-            
-            val loadedState = awaitItem()
-            assertEquals(false, loadedState.isLoading)
-            assertEquals(fakePlayerDto, loadedState.playerDto)
-            cancelAndIgnoreRemainingEvents()
-        }
+        // Assert
+        val finalState = viewModel.uiState.value
 
-
-        uiEventJob.join()
-
+        assertEquals(false, finalState.isLoading)
+        assertEquals(true, finalState.isError)
+        assertEquals(null, finalState.player) //The player should be void in case of error
     }
 }
