@@ -60,3 +60,28 @@ Gitleaks: Varredura de segredos (secrets scanning) para prevenir o commit aciden
 OWASP Dependency-Check: Análise de vulnerabilidades em todas as bibliotecas de terceiros para mitigar riscos da cadeia de suprimentos de software.
 
 MobSF Scan: Análise estática de segurança (SAST) do código-fonte em busca de padrões de codificação inseguros comuns em aplicativos mobile.
+
+
+
+
+🚀 `Como Executar o Projeto`
+Siga os passos abaixo para clonar e executar o projeto localmente.
+
+`Clone o repositório:`
+
+git clone https://github.com/seu-usuario/seu-repositorio.git
+Obtenha uma Chave de API:
+
+Você precisará de uma chave de API do Clash of Clans. Crie uma no [Portal de Desenvolvedores da Supercell](https://developer.clashofclans.com/).
+
+`Configure a Chave de API:`
+
+Na pasta raiz do projeto, crie um arquivo chamado local.properties.
+
+Dentro deste arquivo, adicione sua chave no seguinte formato:
+
+API_KEY="SUA_CHAVE_DE_API_AQUI"
+
+`Execute o Aplicativo:`
+
+Abra o projeto no Android Studio e execute-o em um emulador ou dispositivo físico.
