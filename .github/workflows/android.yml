@@ -50,6 +50,8 @@ jobs:
 
     - name: 🛡️ Scan for Library Vulnerabilities (OWASP)
       run: ./gradlew dependencyCheckAnalyze
+      env:
+        NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 
 
       # =======================================================
