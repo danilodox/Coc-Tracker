@@ -51,18 +51,28 @@ jobs:
     - name: 🛡️ Scan for Library Vulnerabilities (OWASP)
       run: ./gradlew dependencyCheckAnalyze
 
+
+      # =======================================================
+      # MOBSF SCAN STEPS
+      # =======================================================
+
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: 🔬 Static Security Analysis (SAST with MobSF)
+      uses: MobSF/mobsfscan@main
+      with:
+        args: '. --json'
+
+
       # =======================================================
       # BUILD STEP - MUST HAPPEN BEFORE SAST on the APK
       # =======================================================
 
     - name: 🛠️ Build APK
       run: ./gradlew assembleDebug
-
-    - name: 🔬 Static Security Analysis on APK (SAST with MobSF)
-      uses: MobSF/mobsfscan@v3
-      with:
-      # Scan the generated APK for more specific mobile issues
-        path: 'app/build/outputs/apk/debug/app-debug.apk'
 
     - name: 📦 Upload APK (Optional)
       if: success()
