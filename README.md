@@ -23,7 +23,7 @@ Material 3: Componentes visuais e temas.
 
 Compose Navigation: Navegação entre as telas.
 
-Programação Assíncrona:
+`Programação Assíncrona:`
 
 Kotlin Coroutines & Flow: Para gerenciar operações em background e fluxos de dados reativos.
 
