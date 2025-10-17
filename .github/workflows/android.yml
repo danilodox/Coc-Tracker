@@ -59,7 +59,7 @@ jobs:
       run: ./gradlew assembleDebug
 
     - name: 🔬 Static Security Analysis on APK (SAST with MobSF)
-      uses: MobSF/mobsfscan@v3.9.0
+      uses: MobSF/mobsfscan@v3.9.2
       with:
       # Scan the generated APK for more specific mobile issues
         path: 'app/build/outputs/apk/debug/app-debug.apk'
