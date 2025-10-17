@@ -58,6 +58,12 @@ android {
 
 }
 
+dependencyCheck {
+    // check by plugin to use the value from the 'nvdApiKey' Gradle property
+    // 'findProperty' makes it safe to run locally without the key
+    nvd.apiKey = findProperty("nvdApiKey") as? String
+}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
