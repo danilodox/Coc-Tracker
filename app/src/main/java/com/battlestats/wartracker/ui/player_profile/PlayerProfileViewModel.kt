@@ -2,8 +2,10 @@ package com.battlestats.wartracker.ui.player_profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.battlestats.wartracker.data.local.model.toEntity
-import com.battlestats.wartracker.domain.repository.PlayerRepository
+import com.battlestats.wartracker.domain.util.Result
+import com.battlestats.wartracker.domain.usecase.CalculateTownHallProgressUseCase
+import com.battlestats.wartracker.domain.usecase.GetPlayerProfileUseCase
+import com.battlestats.wartracker.domain.usecase.ToggleFavoriteStatusUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -14,7 +16,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class PlayerProfileViewModel(
-    private val repository: PlayerRepository,
+    private val getPlayerProfileUseCase: GetPlayerProfileUseCase,
+    private val toggleFavoriteStatusUseCase: ToggleFavoriteStatusUseCase,
+   // private val calculateTownHallProgressUseCase: CalculateTownHallProgressUseCase
 ) :ViewModel() {
 
     private val _uiState = MutableStateFlow(PlayerProfileUiState())
@@ -28,23 +32,10 @@ class PlayerProfileViewModel(
             is PlayerProfileUiEvent.OnFavoriteClick -> {
 
                 viewModelScope.launch {
-                    try {
-                        val playerEntity = event.playerDto.toEntity()
-                        val isAlreadyFavorite = repository.getByTag(playerEntity.tag) != null
-
-                        if (isAlreadyFavorite) {
-                            repository.delete(playerEntity)
-                            _uiState.update { it.copy(isFavorite = false) }
-                            _uiEvent.emit(PlayerProfileUiEvent.ShowToast("Jogador removido dos favoritos"))
-                        } else {
-                            repository.insert(event.playerDto)
-                            _uiState.update { it.copy(isFavorite = true) }
-                            _uiEvent.emit(PlayerProfileUiEvent.ShowToast("Jogador salvo como favorito"))
-                        }
-
-                    } catch (e: Exception) {
-                        _uiEvent.emit(PlayerProfileUiEvent.ShowToast("Erro ao salvar favorito."))
-                    }
+                    val newFavoriteState = toggleFavoriteStatusUseCase(event.player)
+                    _uiState.update { it.copy(isFavorite = newFavoriteState) }
+                    val message = if (newFavoriteState) "Salved as favorite" else "Removed from favorites"
+                    _uiEvent.emit(PlayerProfileUiEvent.ShowToast(message))
                 }
             }
             is PlayerProfileUiEvent.ShowToast -> {
@@ -61,26 +52,22 @@ class PlayerProfileViewModel(
 
             _uiState.update { it.copy(isLoading = true, isError = false) }
 
-            try {
-                val player = repository.getPlayerDetails(playerTag)
-
-                if (player != null) {
-                    val isFavorite = repository.getByTag(player.tag ?: "") != null
-
-                    _uiState.update { it.copy(
-                        playerDto = player,
-                        isLoading = false,
-                        isFavorite = isFavorite
-                    ) }
-                    _uiEvent.emit(PlayerProfileUiEvent.NavigateToNextScreen)
-                    _uiEvent.emit(PlayerProfileUiEvent.ShowToast("Player loaded successfully"))
-                } else {
-                    _uiState.update { it.copy(isError = true, isLoading = false) }
-                    _uiEvent.emit(PlayerProfileUiEvent.ShowToast("Player not found"))
+            when (val result = getPlayerProfileUseCase(playerTag)) {
+                is Result.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            player = result.data?.player,
+                            isFavorite = result.data?.isFavorite ?: false
+                        )
+                    }
                 }
-            } catch (e: Exception) {
-                _uiState.update { it.copy(isError = true, isLoading = false) }
-                _uiEvent.emit(PlayerProfileUiEvent.ShowToast("Error loading player: ${e.localizedMessage}"))
+                is Result.Error -> {
+                    _uiState.update { it.copy(isError = true, isLoading = false) }
+                    _uiEvent.emit(PlayerProfileUiEvent.ShowToast(result.message ?: "Error"))
+                }
+
+                else -> {}
             }
         }
     }

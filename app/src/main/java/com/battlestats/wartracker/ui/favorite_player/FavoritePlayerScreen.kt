@@ -86,7 +86,7 @@ fun FavoritePlayersScreen(
                         Column {
                             Text(text = player.name, color = Color.White)
                             Text(text = player.tag, color = Color.Gray)
-                            player.clanName?.let {
+                            player.clan?.name.let {
                                 Text(text = "Clã: $it", color = Color.LightGray)
                             }
                         }

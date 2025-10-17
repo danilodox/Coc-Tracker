@@ -49,8 +49,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.battlestats.wartracker.R
-import com.battlestats.wartracker.data.remote.model.Clan
+import com.battlestats.wartracker.data.remote.model.ClanDto
 import com.battlestats.wartracker.data.remote.model.PlayerDto
+import com.battlestats.wartracker.domain.model.Clan
+import com.battlestats.wartracker.domain.model.Player
 import com.battlestats.wartracker.ui.core.component.BottomBarNavigation
 import com.battlestats.wartracker.ui.core.component.ClashProgressBar
 import androidx.compose.material3.TabRow as PlayerClaTab
@@ -80,8 +82,8 @@ fun PlayerProfile(navController: NavController, playerTag: String, viewModel: Pl
                 Text("Erro ao carregar jogador.", color = Color.Red)
             }
         }
-        uiState.playerDto != null -> {
-            uiState.playerDto?.let { player ->
+        uiState.player != null -> {
+            uiState.player?.let { player ->
 
                 Scaffold(
                     bottomBar = {
@@ -107,7 +109,7 @@ fun PlayerProfile(navController: NavController, playerTag: String, viewModel: Pl
 
                             PlayerProfileContent(selectedTab, onTabSelected = {
                                 selectedTab = it
-                            }, playerDto = player)
+                            }, player = player)
                         }
 
                     }
@@ -123,7 +125,7 @@ fun PlayerProfile(navController: NavController, playerTag: String, viewModel: Pl
 private fun PlayerProfileContent(
     selectedTab: Int,
     onTabSelected: (Int) -> Unit,
-    playerDto: PlayerDto
+    player: Player
 ) {
     Column(
         modifier = Modifier
@@ -168,12 +170,12 @@ private fun PlayerProfileContent(
                 horizontalArrangement = Arrangement.Start
             ) {
 
-                PlayerLevelShield(playerDto.expLevel)
+                PlayerLevelShield(player.expLevel)
 
                 Column(modifier = Modifier.padding(8.dp)) {
 
-                    Text(text = playerDto.name!!, fontSize = 16.sp, color = Color.White)
-                    Text(text = playerDto.tag!!, fontSize = 14.sp, color = Color.White)
+                    Text(text = player.name, fontSize = 16.sp, color = Color.White)
+                    Text(text = player.tag, fontSize = 14.sp, color = Color.White)
 
                 }
 
@@ -184,8 +186,8 @@ private fun PlayerProfileContent(
 
         // Conteúdo da aba
         when (selectedTab) {
-            0 -> PlayerInfoSection(playerDto)
-            1 -> ClanInfoSection(playerDto.clan)
+            0 -> PlayerInfoSection(player)
+            1 -> ClanInfoSection(player.clan)
         }
         HorizontalDivider(
             modifier = Modifier
@@ -234,7 +236,7 @@ private fun PlayerProfileContent(
                 horizontalArrangement = Arrangement.Start
             ) {
 
-                townHallLevel(playerDto.townHallLevel)  // ajustar icone para centro de vila
+                townHallLevel(player.townHallLevel)  // ajustar icone para centro de vila
 
                 Column(modifier = Modifier.padding(8.dp)) {
 
@@ -267,7 +269,7 @@ private fun PlayerProfileContent(
 }
 
 @Composable
-fun PlayerInfoSection(playerDto: PlayerDto?) {
+fun PlayerInfoSection(player: Player?) {
 
     Column(modifier = Modifier.padding(8.dp)) {
       /*  player?.let {

@@ -1,7 +1,7 @@
 package com.br.moviefy.data.network
 
 
-import com.battlestats.wartracker.data.remote.model.Clan
+import com.battlestats.wartracker.data.remote.model.ClanDto
 import com.battlestats.wartracker.data.remote.model.PlayerDto
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -9,7 +9,7 @@ import retrofit2.http.Path
 interface ApiService {
 
     @GET("clans/{clanTag}")
-    suspend fun getClanDetails(@Path("clanTag") clanTag: String): Clan
+    suspend fun getClanDetails(@Path("clanTag") clanTag: String): ClanDto
 
     @GET("players/{playerTag}")
     suspend fun getPlayerDetails(

@@ -2,7 +2,7 @@ package com.battlestats.wartracker
 
 import app.cash.turbine.test
 import com.battlestats.wartracker.data.local.model.toEntity
-import com.battlestats.wartracker.data.remote.model.Clan
+import com.battlestats.wartracker.data.remote.model.ClanDto
 import com.battlestats.wartracker.data.remote.model.PlayerDto
 import com.battlestats.wartracker.domain.repository.PlayerRepository
 import com.battlestats.wartracker.ui.player_profile.PlayerProfileUiEvent
@@ -51,7 +51,7 @@ class PlayerDtoProfileViewModelTest {
             name = "Danilo",
             expLevel = 100,
             townHallLevel = 15,
-            clan = Clan(
+            clan = ClanDto(
                 name = "Clashers",
                 tag = "#CLAN123",
                 clanLevel = null,

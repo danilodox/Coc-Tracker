@@ -1,21 +1,21 @@
 package com.battlestats.wartracker.data.remote.model
 
 data class PlayerDto(
-    val league: League?,
-    val builderBaseLeague: BuilderBaseLeague?,
-    val clan: Clan?,
+    val league: LeagueDto?,
+    val builderBaseLeague: BuilderBaseLeagueDto?,
+    val clan: ClanDto?,
     val role: String?,
     val warPreference: String?,
     val attackWins: Int?,
     val defenseWins: Int?,
     val townHallLevel: Int?,
     val townHallWeaponLevel: Int?,
-    val legendStatistics: LegendStatistics?,
-    val troops: List<Troop>?,
-    val heroes: List<Hero>?,
-    val heroEquipment: List<HeroEquipment>?,
-    val spells: List<Spell>?,
-    val labels: List<Label>?,
+    val legendStatistics: LegendStatisticsDto?,
+    val troops: List<TroopDto>?,
+    val heroes: List<HeroDto>?,
+    val heroEquipment: List<HeroEquipmentDto>?,
+    val spells: List<SpellDto>?,
+    val labels: List<LabelDto>?,
     val tag: String?,
     val name: String?,
     val expLevel: Int?,
@@ -27,45 +27,45 @@ data class PlayerDto(
     val builderBaseTrophies: Int?,
     val bestBuilderBaseTrophies: Int?,
     val warStars: Int?,
-    val achievements: List<Achievement>?,
+    val achievements: List<AchievementDto>?,
     val clanCapitalContributions: Int?,
-    val playerHouse: PlayerHouse?
+    val playerHouse: PlayerHouseDto?
 )
 
-data class League(
+data class LeagueDto(
     val name: String?,
     val id: Int?,
     val iconUrls: Map<String, String>?
 )
 
-data class BuilderBaseLeague(
+data class BuilderBaseLeagueDto(
     val name: String?,
     val id: Int?
 )
 
-data class Clan(
+data class ClanDto(
     val tag: String?,
     val clanLevel: Int?,
     val name: String?,
     val badgeUrls: Map<String, String>?
 )
 
-data class LegendStatistics(
+data class LegendStatisticsDto(
     val legendTrophies: Int?,
-    val currentSeason: Season?,
-    val bestSeason: Season?,
-    val bestBuilderBaseSeason: Season?,
-    val previousSeason: Season?,
-    val previousBuilderBaseSeason: Season?
+    val currentSeason: SeasonDto?,
+    val bestSeason: SeasonDto?,
+    val bestBuilderBaseSeason: SeasonDto?,
+    val previousSeason: SeasonDto?,
+    val previousBuilderBaseSeason: SeasonDto?
 )
 
-data class Season(
+data class SeasonDto(
     val trophies: Int?,
     val id: String?,
     val rank: Int?
 )
 
-data class Troop(
+data class TroopDto(
     val level: Int?,
     val name: String?,
     val maxLevel: Int?,
@@ -74,25 +74,16 @@ data class Troop(
     val equipment: List<String>?
 )
 
-data class Hero(
+data class HeroDto(
     val level: Int?,
     val name: String?,
     val maxLevel: Int?,
     val village: String?,
     val superTroopIsActive: Boolean?,
-    val equipment: List<HeroEquipment>?
+    val equipment: List<HeroEquipmentDto>?
 )
 
-data class HeroEquipment(
-    val level: Int?,
-    val name: String?,
-    val maxLevel: Int?,
-    val village: String?,
-    val superTroopIsActive: Boolean?,
-    val equipment: List<String>?
-)
-
-data class Spell(
+data class HeroEquipmentDto(
     val level: Int?,
     val name: String?,
     val maxLevel: Int?,
@@ -101,13 +92,22 @@ data class Spell(
     val equipment: List<String>?
 )
 
-data class Label(
+data class SpellDto(
+    val level: Int?,
+    val name: String?,
+    val maxLevel: Int?,
+    val village: String?,
+    val superTroopIsActive: Boolean?,
+    val equipment: List<String>?
+)
+
+data class LabelDto(
     val name: String?,
     val id: Int?,
     val iconUrls: Map<String, String>?
 )
 
-data class Achievement(
+data class AchievementDto(
     val stars: Int?,
     val value: Int?,
     val name: String?,
@@ -117,11 +117,11 @@ data class Achievement(
     val village: String?
 )
 
-data class PlayerHouse(
-    val elements: List<PlayerHouseElement>?
+data class PlayerHouseDto(
+    val elements: List<PlayerHouseElementDto>?
 )
 
-data class PlayerHouseElement(
+data class PlayerHouseElementDto(
     val id: Int?,
     val type: String?
 )
