@@ -1,4 +1,4 @@
-name: Android CI
+name: Android CI & Security Scan
 
 on:
   push:
@@ -7,15 +7,15 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
+  build-and-scan:
 
     runs-on: ubuntu-latest
 
     steps:
-    - name: 🔄 Checkout código
+    - name: 🔄 Checkout code
       uses: actions/checkout@v4
 
-    - name: ☕️ Configurar Java
+    - name: ☕️ Setup Java
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
@@ -31,19 +31,40 @@ jobs:
         restore-keys: |
           gradle-${{ runner.os }}
 
-    - name: 🧼 Permissão de execução para o gradlew
+    - name: 🧼 Grant execute permission for gradlew
       run: chmod +x ./gradlew
 
-    - name: 🧪 Rodar testes unitários
-      run: ./gradlew testDebugUnitTest
-
-    - name: 🛠️ Build APK
-      run: ./gradlew assembleDebug
+      # =======================================================
+      # NEW SECURITY STEPS START HERE
+      # =======================================================
+    - name: 🤫 Secret Scanning with Gitleaks
+      uses: gitleaks/gitleaks-action@v2
+      with:
+        fail: true
 
     - name: ✅ Lint check
       run: ./gradlew lintDebug
 
-    - name: 📦 Upload APK (Opcional)
+    - name: 🧪 Run unit tests
+      run: ./gradlew testDebugUnitTest
+
+    - name: 🛡️ Scan for Library Vulnerabilities (OWASP)
+      run: ./gradlew dependencyCheckAnalyze
+
+      # =======================================================
+      # BUILD STEP - MUST HAPPEN BEFORE SAST on the APK
+      # =======================================================
+
+    - name: 🛠️ Build APK
+      run: ./gradlew assembleDebug
+
+    - name: 🔬 Static Security Analysis on APK (SAST with MobSF)
+      uses: MobSF/mobsfscan@v3.9.0
+      with:
+      # Scan the generated APK for more specific mobile issues
+        path: 'app/build/outputs/apk/debug/app-debug.apk'
+
+    - name: 📦 Upload APK (Optional)
       if: success()
       uses: actions/upload-artifact@v4
       with:
