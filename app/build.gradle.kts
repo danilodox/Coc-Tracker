@@ -19,7 +19,9 @@ android {
 
     defaultConfig {
         applicationId = "com.battlestats.wartracker"
-        minSdk = 24
+        //mis sdk = 24 -> is below safe levels. Recommended at least API 29
+        //Which makes it vulnerable to attacks like "StrandHogg 2.0"
+        minSdk = 29
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
