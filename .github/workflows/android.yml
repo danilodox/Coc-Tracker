@@ -51,8 +51,14 @@ jobs:
     - name: 🧪 Run unit tests
       run: ./gradlew testDebugUnitTest
 
-    - name: 🛡️ Scan for Library Vulnerabilities (OWASP)
-      run: ./gradlew dependencyCheckAnalyze -PnvdApiKey="${{ secrets.NVD_API_KEY }}"
+    - name: 🛡️ Scan for Library Vulnerabilities (Trivy)
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'table'
+        exit-code: '1'
+        severity: 'CRITICAL,HIGH'
 
 
       # =======================================================
