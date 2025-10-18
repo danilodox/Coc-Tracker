@@ -57,7 +57,7 @@ A pipeline de CI/CD no GitHub Actions foi configurada para agir como um "portão
 
 Gitleaks: Varredura de segredos (secrets scanning) para prevenir o commit acidental de credenciais e chaves de API.
 
-OWASP Dependency-Check: Análise de vulnerabilidades em todas as bibliotecas de terceiros para mitigar riscos da cadeia de suprimentos de software.
+Trivy: Análise de vulnerabilidades (CVEs) em todas as bibliotecas de terceiros para mitigar riscos da cadeia de suprimentos de software. (Nota: O projeto foi iniciado com o OWASP Dependency-Check, mas migrou para o Trivy devido à instabilidade do serviço da NVD no ambiente de CI).
 
 MobSF Scan: Análise estática de segurança (SAST) do código-fonte em busca de padrões de codificação inseguros comuns em aplicativos mobile.
 
