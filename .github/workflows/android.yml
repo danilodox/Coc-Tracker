@@ -52,7 +52,7 @@ jobs:
       run: ./gradlew testDebugUnitTest
 
     - name: 🛡️ Scan for Library Vulnerabilities (OWASP)
-      run: ./gradlew dependencyCheckAnalyze -PnvdApiKey=${{ secrets.NVD_API_KEY }}
+      run: ./gradlew dependencyCheckAnalyze -PnvdApiKey="${{ secrets.NVD_API_KEY }}"
 
 
       # =======================================================
