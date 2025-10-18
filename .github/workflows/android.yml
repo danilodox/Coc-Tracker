@@ -39,8 +39,8 @@ jobs:
       # =======================================================
     - name: 🤫 Secret Scanning with Gitleaks
       uses: gitleaks/gitleaks-action@v2
-      with:
-        fail: true
+      env:
+        GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
     - name: ✅ Lint check
       run: ./gradlew lintDebug
