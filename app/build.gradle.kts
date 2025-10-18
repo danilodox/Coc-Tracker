@@ -5,8 +5,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.owasp)
-
-    //id("com.google.devtools.ksp") version "2.1.0-1.0.29"
 }
 
 val localProperties = Properties()
