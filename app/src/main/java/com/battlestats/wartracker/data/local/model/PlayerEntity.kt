@@ -26,7 +26,6 @@ data class PlayerEntity(
     val clanTag: String? = null
 )
 
-// ADICIONE ESTA NOVA CLASSE NO MESMO ARQUIVO
 /**
  * Classe de Relação que junta um PlayerEntity com seu ClanEntity correspondente.
  * O Room usará isso para buscar os dados de ambas as tabelas de uma só vez.
@@ -47,13 +46,11 @@ fun PlayerWithClan.toDomain(): Player {
         name = this.player.name,
         expLevel = this.player.expLevel,
         townHallLevel = this.player.townHallLevel,
-        // Converte a ClanEntity para o modelo de domínio Clan
         clan = this.clan?.let { clanEntity ->
             Clan(
                 tag = clanEntity.tag,
                 name = clanEntity.name,
                 clanLevel = clanEntity.level
-                // Adicione badgeUrl se precisar
             )
         }
     )
