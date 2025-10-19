@@ -1,19 +1,63 @@
 package com.battlestats.wartracker.data.local.model
-import com.battlestats.wartracker.data.remote.model.ClanDto
+import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.battlestats.wartracker.data.remote.model.PlayerDto
+import androidx.room.Relation
 import com.battlestats.wartracker.domain.model.Clan
 import com.battlestats.wartracker.domain.model.Player
 
-@Entity(tableName = "players")
+@Entity(
+    tableName = "players",
+    foreignKeys = [
+        ForeignKey(
+            entity = ClanEntity::class,
+            parentColumns = ["tag"],
+            childColumns = ["clanTag"],
+            onDelete = ForeignKey.SET_NULL // Se um clan for deletado, o jogador não será
+        )
+    ]
+)
 data class PlayerEntity(
     @PrimaryKey val tag: String,
     val name: String,
     val expLevel: Int,
     val townHallLevel: Int,
-    val clanName: String? = null
+    val clanTag: String? = null
 )
+
+// ADICIONE ESTA NOVA CLASSE NO MESMO ARQUIVO
+/**
+ * Classe de Relação que junta um PlayerEntity com seu ClanEntity correspondente.
+ * O Room usará isso para buscar os dados de ambas as tabelas de uma só vez.
+ */
+data class PlayerWithClan(
+    @Embedded val player: PlayerEntity,
+    @Relation(
+        parentColumn = "clanTag", // Campo na tabela 'players'
+        entityColumn = "tag"      // Campo na tabela 'clans'
+    )
+    val clan: ClanEntity?
+)
+
+
+fun PlayerWithClan.toDomain(): Player {
+    return Player(
+        tag = this.player.tag,
+        name = this.player.name,
+        expLevel = this.player.expLevel,
+        townHallLevel = this.player.townHallLevel,
+        // Converte a ClanEntity para o modelo de domínio Clan
+        clan = this.clan?.let { clanEntity ->
+            Clan(
+                tag = clanEntity.tag,
+                name = clanEntity.name,
+                clanLevel = clanEntity.level
+                // Adicione badgeUrl se precisar
+            )
+        }
+    )
+}
 
 fun Player.toEntity(): PlayerEntity {
     return PlayerEntity(
@@ -21,38 +65,7 @@ fun Player.toEntity(): PlayerEntity {
         name = this.name,
         expLevel = this.expLevel,
         townHallLevel = this.townHallLevel,
-        clanName = this.clan?.name
-    )
-}
-
-fun PlayerEntity.toDomain(): Player {
-    return Player(
-        tag = this.tag,
-        name = this.name,
-        expLevel = this.expLevel,
-        townHallLevel = this.townHallLevel,
-        clan = this.clanName?.let { name ->
-            Clan(tag = "", name = name, clanLevel = 0)
-        }
-    )
-}
-
-fun ClanDto.toDomain(): Clan {
-    return Clan(
-        tag = this.tag ?: "",
-        name = this.name ?: "Unknown Clan",
-        clanLevel = this.clanLevel ?: 0
-    )
-}
-
-
-fun PlayerDto.toDomain(): Player {
-    return Player(
-        tag = this.tag ?: "",
-        name = this.name ?: "Unknown Player",
-        expLevel = this.expLevel ?: 0,
-        townHallLevel = this.townHallLevel ?: 0,
-        clan = this.clan?.toDomain()
+        clanTag = this.clan?.tag
     )
 }
 

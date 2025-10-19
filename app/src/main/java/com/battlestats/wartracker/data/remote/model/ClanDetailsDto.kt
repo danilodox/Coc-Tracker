@@ -1,4 +1,4 @@
-data class ClanDto(
+data class ClanDetailsDto(
     val tag: String,
     val name: String,
     val description: String,
@@ -24,7 +24,7 @@ data class ClanDto(
     val warLeague: League?,
     val capitalLeague: League?,
     val labels: List<Label>?,
-    val memberList: List<ClanMember>?,
+    val memberList: List<ClanMemberDto>?,
     val clanCapital: ClanCapital?
 )
 
@@ -59,7 +59,7 @@ data class Label(
     val iconUrls: BadgeUrls?
 )
 
-data class ClanMember(
+data class ClanMemberDto(
     val tag: String,
     val name: String,
     val role: String,

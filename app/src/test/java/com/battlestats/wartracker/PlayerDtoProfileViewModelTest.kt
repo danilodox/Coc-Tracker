@@ -1,23 +1,18 @@
 package com.battlestats.wartracker
 
-import app.cash.turbine.test
 import com.battlestats.wartracker.domain.util.Result
-import com.battlestats.wartracker.data.local.model.toEntity
 import com.battlestats.wartracker.domain.model.Clan
 import com.battlestats.wartracker.domain.model.Player
 import com.battlestats.wartracker.domain.usecase.CalculateTownHallProgressUseCase
 import com.battlestats.wartracker.domain.usecase.GetPlayerProfileUseCase
 import com.battlestats.wartracker.domain.usecase.PlayerProfileData
 import com.battlestats.wartracker.domain.usecase.ToggleFavoriteStatusUseCase
-import com.battlestats.wartracker.ui.player_profile.PlayerProfileUiEvent
-import com.battlestats.wartracker.ui.player_profile.PlayerProfileViewModel
+import com.battlestats.wartracker.ui.home.HomeViewModel
 import io.mockk.coEvery
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -35,7 +30,7 @@ class PlayerDtoProfileViewModelTest {
     private lateinit var getPlayerProfileUseCase: GetPlayerProfileUseCase
     private lateinit var toggleFavoriteStatusUseCase: ToggleFavoriteStatusUseCase
     private lateinit var calculateTownHallProgressUseCase: CalculateTownHallProgressUseCase
-    private lateinit var viewModel: PlayerProfileViewModel
+    private lateinit var viewModel: HomeViewModel
 
 
     @Before
@@ -45,7 +40,7 @@ class PlayerDtoProfileViewModelTest {
         toggleFavoriteStatusUseCase = mockk(relaxed = true) //relaxed to not use this test for now
         calculateTownHallProgressUseCase = mockk(relaxed = true)
 
-        viewModel = PlayerProfileViewModel(
+        viewModel = HomeViewModel(
             getPlayerProfileUseCase,
             toggleFavoriteStatusUseCase,
         )

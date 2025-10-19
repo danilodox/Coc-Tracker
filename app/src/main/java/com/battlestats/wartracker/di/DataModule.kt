@@ -30,6 +30,7 @@ val dataModule = module {
     }
 
     single { get<AppDatabase>().playerDao() }
+    single { get<AppDatabase>().clanDao() }
 
     single { AuthInterceptor(get()) }
 
@@ -40,7 +41,8 @@ val dataModule = module {
     single <PlayerRepository> {
         PlayerRepositoryImpl (
             apiService = get(),
-            playerDao = get()
+            playerDao = get(),
+            clanDao = get()
         )
     }
 

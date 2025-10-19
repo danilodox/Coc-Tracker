@@ -9,7 +9,7 @@ import com.battlestats.wartracker.ui.favorite_player.FavoritePlayersViewModel
 import org.koin.androidx.compose.koinViewModel
 import com.battlestats.wartracker.ui.core.navigation.AppNavigation
 import com.battlestats.wartracker.ui.player_login.PlayerLoginViewModel
-import com.battlestats.wartracker.ui.player_profile.PlayerProfileViewModel
+import com.battlestats.wartracker.ui.home.HomeViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -20,15 +20,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
-            val playerViewModel = koinViewModel<PlayerProfileViewModel>()
-            val playerLoginViewModel = koinViewModel<PlayerLoginViewModel>()
             val favoritePlayersViewModel = koinViewModel<FavoritePlayersViewModel>()
 
 
             MaterialTheme {
                 AppNavigation(navController = navController,
-                    playerProfileViewModel = playerViewModel,
-                    playerLoginViewModel = playerLoginViewModel,
                     favoritePlayersViewModel = favoritePlayersViewModel
                 )
             }

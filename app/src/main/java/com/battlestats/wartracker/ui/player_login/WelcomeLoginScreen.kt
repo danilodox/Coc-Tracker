@@ -16,13 +16,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.battlestats.wartracker.R
-import com.battlestats.wartracker.ui.player_profile.PlayerProfileUiEvent
-import com.battlestats.wartracker.ui.player_profile.PlayerProfileViewModel
 
 @Composable
 fun WelcomeLoginScreen(
@@ -40,8 +37,7 @@ fun WelcomeLoginScreen(
                     Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
                 }
                 is PlayerLoginUiEvent.NavigateToHome  -> {
-                    Log.d("aquii", "player_profile/${event.tag}")
-                    navController.navigate("player_profile/${Uri.encode(event.tag)}")
+                    navController.navigate("home_screen/${Uri.encode(event.tag)}")
                 }
             }
         }

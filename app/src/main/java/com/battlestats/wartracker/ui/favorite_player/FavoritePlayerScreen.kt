@@ -32,7 +32,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.battlestats.wartracker.R
-import com.battlestats.wartracker.ui.player_profile.PlayerLevelShield
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,7 +80,6 @@ fun FavoritePlayersScreen(
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        PlayerLevelShield(player.expLevel)
                         Spacer(Modifier.width(16.dp))
                         Column {
                             Text(text = player.name, color = Color.White)

@@ -10,4 +10,17 @@
     <color name="background_coc">#FF1E1E1E</color>
     <color name="background_card">#282828</color>
 
+
+    <color name="DarkGrayBackground">#FF262C3A</color>
+
+    <color name="DarkSectionBackground">#FF333A4A</color>
+
+
+    <color name="GoldGradientStart">#FFDAA520</color>
+    <color name="GoldGradientEnd">#FFFFD700</color>
+
+    <color name="LightGold">#FFFFD700</color>
+
+    <color name="GrayText">#FFB0B3BA</color>
+
 </resources>
