@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,7 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.battlestats.wartracker.R
 
-// #2PLVVQYRP
+//#2PLVVQYRP
 
 @Composable
 fun HomeScreen(
@@ -48,6 +49,18 @@ fun HomeScreen(
     viewModel: HomeViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect { event ->
+            when (event) {
+                is NavigationEvent.ToPlayerDetails -> {
+                    navController.navigate("player_details/${Uri.encode(event.playerTag)}")
+                }
+
+                else -> {}
+            }
+        }
+    }
 
     when {
         uiState.isLoading -> {
@@ -105,6 +118,9 @@ fun HomeScreenContent(
                 playerLevel = player.expLevel,
                 playerAvatarId = R.drawable.clash_logo,
                 clanName = player.clan?.name ?: "No Clan",
+                onClick = {
+                    onEvent(HomeUiEvent.OnPlayerProfileClicked(player.tag))
+                }
             )
             NavigationButton(
                 iconId = R.drawable.clash_logo,
@@ -147,7 +163,7 @@ private fun HomeTopBar(onBackClicked: () -> Unit) {
             modifier = Modifier.align(Alignment.CenterStart)
         ) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack, // Ícone padrão do Material
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back to Login",
                 tint = Color.White
             )
@@ -155,7 +171,7 @@ private fun HomeTopBar(onBackClicked: () -> Unit) {
 
         Text(
             text = "Home Screen",
-            fontSize = 20.sp, // Tamanho menor
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White
         )
@@ -170,9 +186,12 @@ fun PlayerProfileCard(
     playerLevel: Int,
     playerAvatarId: Int,
     clanName: String,
+    onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.DarkSectionBackground))
     ) {

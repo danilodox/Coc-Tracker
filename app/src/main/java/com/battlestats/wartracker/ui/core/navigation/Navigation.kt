@@ -15,6 +15,8 @@ import com.battlestats.wartracker.ui.player_login.PlayerLoginViewModel
 import com.battlestats.wartracker.ui.home.HomeScreen
 import com.battlestats.wartracker.ui.player_login.WelcomeLoginScreen
 import com.battlestats.wartracker.ui.home.HomeViewModel
+import com.battlestats.wartracker.ui.player_details.PlayerDetailsScreen
+import com.battlestats.wartracker.ui.player_details.PlayerDetailsViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -53,6 +55,16 @@ fun AppNavigation(
                 clanTag = clanTag,
                 viewModel = viewModel
             )
+        }
+
+        composable(
+            route = "player_details/{playerTag}",
+            arguments = listOf(navArgument("playerTag") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val playerTag = backStackEntry.arguments?.getString("playerTag") ?: ""
+            val viewModel: PlayerDetailsViewModel = koinViewModel()
+            // A injeção do SavedStateHandle no ViewModel cuidará de pegar o playerTag
+            PlayerDetailsScreen(navController = navController, viewModel = viewModel)
         }
     }
 }

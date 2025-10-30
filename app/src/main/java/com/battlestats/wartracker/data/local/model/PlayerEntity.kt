@@ -46,6 +46,12 @@ fun PlayerWithClan.toDomain(): Player {
         name = this.player.name,
         expLevel = this.player.expLevel,
         townHallLevel = this.player.townHallLevel,
+        trophies = 0,
+        warStars = 0,
+        donations = 0,
+        troops = emptyList(),
+        heroes = emptyList(),
+        spells = emptyList(),
         clan = this.clan?.let { clanEntity ->
             Clan(
                 tag = clanEntity.tag,

@@ -1,14 +1,13 @@
-package com.battlestats.wartracker
 
+import com.battlestats.wartracker.data.datastore.SecureTokenProvider
 import com.battlestats.wartracker.domain.util.Result
 import com.battlestats.wartracker.domain.model.Clan
 import com.battlestats.wartracker.domain.model.Player
-import com.battlestats.wartracker.domain.usecase.CalculateTownHallProgressUseCase
 import com.battlestats.wartracker.domain.usecase.GetPlayerProfileUseCase
 import com.battlestats.wartracker.domain.usecase.PlayerProfileData
-import com.battlestats.wartracker.domain.usecase.ToggleFavoriteStatusUseCase
 import com.battlestats.wartracker.ui.home.HomeViewModel
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
@@ -19,30 +18,37 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
-
 import org.junit.Before
-import kotlin.test.Test
+import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class PlayerDtoProfileViewModelTest {
+class HomeViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     private lateinit var getPlayerProfileUseCase: GetPlayerProfileUseCase
-    private lateinit var toggleFavoriteStatusUseCase: ToggleFavoriteStatusUseCase
-    private lateinit var calculateTownHallProgressUseCase: CalculateTownHallProgressUseCase
+    private lateinit var secureTokenProvider: SecureTokenProvider
+
     private lateinit var viewModel: HomeViewModel
 
+    private val testPlayerTag = "#123ABC"
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        getPlayerProfileUseCase = mockk()
-        toggleFavoriteStatusUseCase = mockk(relaxed = true) //relaxed to not use this test for now
-        calculateTownHallProgressUseCase = mockk(relaxed = true)
 
+
+        getPlayerProfileUseCase = mockk()
+        secureTokenProvider = mockk()
+
+
+        // Simulate SavedStateHandle providing the playerTag
+        every { secureTokenProvider.getSavedTag() } returns testPlayerTag
+
+
+        // Instantiate the ViewModel with correct dependencies
         viewModel = HomeViewModel(
-            getPlayerProfileUseCase,
-            toggleFavoriteStatusUseCase,
+            getPlayerProfileUseCase = getPlayerProfileUseCase,
+            secureTokenProvider = secureTokenProvider,
         )
     }
 
@@ -52,61 +58,78 @@ class PlayerDtoProfileViewModelTest {
     }
 
     @Test
-    fun `getPlayerData should update uiState and emit events on success`() = runTest {
+    fun `init should update uiState with Player on successful data load`() = runTest {
         // Arrange
-        val tag = "#123ABC"
-
-        //create all data domain
+        // Create test data using domain models
         val fakeClan = Clan(tag = "#CLAN123", name = "Clashers", clanLevel = 10)
-
         val fakePlayer = Player(
-            tag = tag,
+            tag = testPlayerTag,
             name = "Danilo",
             expLevel = 100,
+            trophies = 5000,
+            warStars = 100,
+            donations = 50,
             townHallLevel = 15,
-            clan = fakeClan
+            clan = fakeClan,
+            troops = emptyList(),
+            heroes = emptyList(),
+            spells = emptyList()
         )
 
-        val profileData = PlayerProfileData(player = fakePlayer, isFavorite = true)
+        val profileData = PlayerProfileData(player = fakePlayer, isFavorite = false) // isFavorite doesn't matter here
 
-        //configure the mock of the Usecase to return success
-        coEvery { getPlayerProfileUseCase(tag) } returns Result.Success(profileData)
+        coEvery { getPlayerProfileUseCase(testPlayerTag) } returns Result.Success(profileData)
 
-        viewModel.getPlayerData(tag)
-
-        //clear all coroutines after the test is finished
+        // Act
+        // Data loading happens in ViewModel's init block during setup(),
+        // so we just need to wait for coroutines to finish.
         advanceUntilIdle()
 
-
         // Assert
-        //verify all final state of UI with domain model
+        // Verify the final UI state
         val finalState = viewModel.uiState.value
 
         assertEquals(false, finalState.isLoading)
         assertEquals(fakePlayer, finalState.player)
-        assertEquals(true, finalState.isFavorite) // Verifica se o status de favorito foi atualizado
-        assertEquals(false, finalState.isError)
-
+        assertEquals(null, finalState.error)
     }
 
     @Test
-    fun `getPlayerData should update uiState with error on failure`() = runTest {
+    fun `init should update uiState with error on data load failure`() = runTest {
         // Arrange
-        val tag = "#ERROR"
         val errorMessage = "Player not found"
 
-        // Configure the UseCase mock to return an error result
-        coEvery { getPlayerProfileUseCase(tag) } returns Result.Error(errorMessage)
+        // Configure UseCase mock to return an error result
+        coEvery { getPlayerProfileUseCase(testPlayerTag) } returns Result.Error(errorMessage)
 
         // Act
-        viewModel.getPlayerData(tag)
+        advanceUntilIdle() // Wait for init block coroutine
+
+        // Assert
+        val finalState = viewModel.uiState.value
+
+        assertEquals(false, finalState.isLoading)
+        assertEquals(errorMessage, finalState.error)
+        assertEquals(null, finalState.player)
+    }
+
+    @Test
+    fun `init should update uiState with error if playerTag is missing`() = runTest {
+
+        // Override the setup mock for SavedStateHandle to return null
+        every { secureTokenProvider.getSavedTag() } returns null
+
+        // Re-initialize ViewModel with the failing SavedStateHandle
+        viewModel = HomeViewModel(getPlayerProfileUseCase, secureTokenProvider)
+
+        // Act
         advanceUntilIdle()
 
         // Assert
         val finalState = viewModel.uiState.value
 
         assertEquals(false, finalState.isLoading)
-        assertEquals(true, finalState.isError)
-        assertEquals(null, finalState.player) //The player should be void in case of error
+        assertEquals("No player tag found.", finalState.error)
+        assertEquals(null, finalState.player)
     }
 }
