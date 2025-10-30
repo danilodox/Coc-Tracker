@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.battlestats.wartracker.domain.util.Result
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 
 
 class ClanInfoViewModel(
@@ -16,6 +18,9 @@ class ClanInfoViewModel(
 
     private val _uiState = MutableStateFlow(ClanInfoUiState())
     val uiState = _uiState.asStateFlow()
+
+    private val _navigationEvent = Channel<NavigationEvent>()
+    val navigationEvent = _navigationEvent.receiveAsFlow()
 
     fun loadClanDetails(clanTag: String) {
         viewModelScope.launch {
@@ -41,10 +46,16 @@ class ClanInfoViewModel(
     fun onEvent(event: ClanInfoUiEvent) {
         when (event) {
             is ClanInfoUiEvent.OnMemberClicked -> {
-                // TODO: Lógica para navegar para o perfil do membro clicado
+                viewModelScope.launch {
+                    _navigationEvent.send(NavigationEvent.ToMemberDetails(event.playerTag))
+                }
             }
             // O OnBackClicked será tratado na UI com o NavController
             else -> {}
         }
     }
+}
+
+sealed class NavigationEvent {
+    data class ToMemberDetails(val playerTag: String) : NavigationEvent()
 }

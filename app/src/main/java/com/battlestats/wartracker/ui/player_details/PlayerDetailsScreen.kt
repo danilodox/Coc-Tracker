@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -93,7 +95,14 @@ fun PlayerDetailsScreen(
             when {
                 uiState.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 uiState.error != null -> Text("Error: ${uiState.error}", color = Color.Red, modifier = Modifier.align(Alignment.Center))
-                uiState.player != null -> PlayerDetailsContent(player = uiState.player!!)
+                uiState.player != null -> PlayerDetailsContent(
+                    player = uiState.player!!,
+                    onNavigateToWarHistory = {
+                        TODO()
+                        // navController.navigate("war_history_screen/${player.tag}")
+                    }
+
+                )
             }
         }
     }
@@ -101,20 +110,31 @@ fun PlayerDetailsScreen(
 
 
 @Composable
-fun PlayerDetailsContent(player: Player) {
+fun PlayerDetailsContent(
+    player: Player,
+    onNavigateToWarHistory: () -> Unit
+) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Seção "Herói"
+        // Hero
         item {
             PlayerHeroCard(player = player)
         }
-        // Grid de Estatísticas
+        // Statistic Grid
         item {
             PlayerStatsGrid(player = player)
         }
+
+        item {
+            CreativeWarButton(
+                text = "Ver Histórico de Guerras",
+                onClick = onNavigateToWarHistory
+            )
+        }
+
         // Abas com mais detalhes
         item {
             DetailedInfoPager(player = player)
@@ -132,14 +152,12 @@ fun PlayerHeroCard(player: Player) {
         Box(
             modifier = Modifier.height(200.dp)
         ) {
-            // Imagem de fundo (opcional, mas dá um toque premium)
             Image(
                 painter = painterResource(id = R.drawable.background_art), // TODO: Adicione uma arte de fundo
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
-            // Gradiente para escurecer o fundo e dar contraste
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -230,7 +248,7 @@ fun DetailedInfoPager(player: Player) {
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(400.dp) // Defina uma altura para o pager
+                .height(400.dp)
         ) { page ->
             Box(modifier = Modifier.fillMaxSize().padding(top = 16.dp), contentAlignment = Alignment.Center) {
                 when (page) {
@@ -246,7 +264,7 @@ fun DetailedInfoPager(player: Player) {
 @Composable
 fun TroopGrid(troops: List<Troop>) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 90.dp), // Cria colunas adaptáveis
+        columns = GridCells.Adaptive(minSize = 90.dp),
         contentPadding = PaddingValues(top = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -331,7 +349,7 @@ fun GridItemCard(
     }
 }
 
-// NOVO COMPONENTE PARA O INDICADOR DE NÍVEL
+
 @Composable
 fun LevelIndicator(level: Int, maxLevel: Int, modifier: Modifier = Modifier) {
     val isMaxLevel = level == maxLevel
@@ -351,5 +369,58 @@ fun LevelIndicator(level: Int, maxLevel: Int, modifier: Modifier = Modifier) {
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold
         )
+    }
+}
+
+@Composable
+fun CreativeWarButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // Gradiente dourado para um visual "premium"
+    val goldGradient = Brush.horizontalGradient(
+        colors = listOf(
+            colorResource(id = R.color.LightGold).copy(alpha = 0.7f),
+            colorResource(id = R.color.LightGold),
+            colorResource(id = R.color.LightGold).copy(alpha = 0.7f)
+        )
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(goldGradient) // Fundo com gradiente
+            .border( // Borda sutil para destacar
+                width = 2.dp,
+                color = Color.White.copy(alpha = 0.3f),
+                shape = RoundedCornerShape(12.dp)
+            )
+            .clickable(onClick = onClick) // Ação de clique
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // Um ícone para o tema de guerra
+            Image(
+                painter = painterResource(id = R.drawable.clash_logo), // TODO: Troque pelo seu ícone de "espadas" ou "guerra"
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(Modifier.width(12.dp))
+            Text(
+                text = text.uppercase(), // Texto em maiúsculo para impacto
+                color = colorResource(id = R.color.DarkSectionBackground), // Texto escuro para contrastar com o dourado
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
+            Spacer(Modifier.weight(1f)) // Empurra a seta para a direita
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = "Navegar",
+                tint = colorResource(id = R.color.DarkSectionBackground).copy(alpha = 0.8f)
+            )
+        }
     }
 }

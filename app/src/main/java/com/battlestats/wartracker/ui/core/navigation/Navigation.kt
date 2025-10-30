@@ -66,5 +66,14 @@ fun AppNavigation(
             // A injeção do SavedStateHandle no ViewModel cuidará de pegar o playerTag
             PlayerDetailsScreen(navController = navController, viewModel = viewModel)
         }
+
+        composable( //Mesma tela de player_details mas com os membros do clan
+            route = "member_details/{playerTag}",
+            arguments = listOf(navArgument("playerTag") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val playerTag = backStackEntry.arguments?.getString("playerTag") ?: ""
+            val viewModel: PlayerDetailsViewModel = koinViewModel()
+            PlayerDetailsScreen(navController = navController, viewModel = viewModel)
+        }
     }
 }

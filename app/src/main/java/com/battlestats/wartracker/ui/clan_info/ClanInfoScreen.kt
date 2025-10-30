@@ -1,5 +1,6 @@
 package com.battlestats.wartracker.ui.clan_info
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,6 +47,7 @@ import androidx.navigation.NavController
 import com.battlestats.wartracker.R
 import com.battlestats.wartracker.domain.model.ClanDetails
 import com.battlestats.wartracker.domain.model.ClanMember
+import com.battlestats.wartracker.ui.clan_info.NavigationEvent
 import androidx.compose.material3.Scaffold as Scaffold1
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +61,16 @@ fun ClanInfoScreen(
 
     LaunchedEffect(clanTag) {
         viewModel.loadClanDetails(clanTag)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect { event ->
+            when (event) {
+                is NavigationEvent.ToMemberDetails -> {
+                    navController.navigate("member_details/${Uri.encode(event.playerTag)}")
+                }
+            }
+        }
     }
 
     Scaffold1(
@@ -99,10 +111,6 @@ fun ClanInfoScreen(
     }
 }
 
-
-// ==========================================================
-// 2. O COMPOSABLE DE CONTEÚDO (A "BELEZA")
-// ==========================================================
 @Composable
 fun ClanInfoContent(
     clanDetails: ClanDetails,
@@ -139,9 +147,6 @@ fun ClanInfoContent(
     }
 }
 
-// ==========================================================
-// 3. COMPONENTES REUTILIZÁVEIS
-// ==========================================================
 @Composable
 fun ClanDetailsCard(clan: ClanDetails) {
     Card(
@@ -171,7 +176,6 @@ fun ClanDetailsCard(clan: ClanDetails) {
                 StatItem(label = "Members", value = "${clan.membersCount}/50")
                 StatItem(label = "War Wins", value = clan.warWins.toString())
                 StatItem(label = "War Losses", value = clan.warLosses.toString())
-                // CORRIGIDO: Adicionado "War Ties" no lugar da duplicata
                 StatItem(label = "War Ties", value = clan.warTies.toString())
             }
         }
