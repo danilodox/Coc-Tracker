@@ -7,7 +7,11 @@ import com.battlestats.wartracker.data.local.dao.PlayerDao
 import com.battlestats.wartracker.data.local.model.ClanEntity
 import com.battlestats.wartracker.data.local.model.PlayerEntity
 
-@Database(entities = [PlayerEntity::class, ClanEntity::class], version = 2)
+@Database(
+    entities = [PlayerEntity::class, ClanEntity::class],
+    version = 2,
+    exportSchema = false)
+
 abstract class AppDatabase : RoomDatabase() {
     abstract fun playerDao(): PlayerDao
 

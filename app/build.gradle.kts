@@ -105,12 +105,14 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     implementation(libs.android.database.sqlcipher)
-   // implementation(libs.room.compiler) não existe implemenation pra essa lib
 
     ksp(libs.room.compiler)
-    //ksp(libs.ksp)
 
-
+    // Ktor Client (Core)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
 
 
 

@@ -2,6 +2,7 @@ package com.battlestats.wartracker.data.local.model
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.battlestats.wartracker.domain.model.Clan
@@ -16,7 +17,8 @@ import com.battlestats.wartracker.domain.model.Player
             childColumns = ["clanTag"],
             onDelete = ForeignKey.SET_NULL // Se um clan for deletado, o jogador não será
         )
-    ]
+    ],
+    indices = [Index(value = ["clanTag"])]
 )
 data class PlayerEntity(
     @PrimaryKey val tag: String,
